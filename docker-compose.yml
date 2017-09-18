@@ -1,0 +1,37 @@
+version: "3.3"
+
+volumes:
+#  mariadb-volume:
+  ssl-volume:
+  ejabberd-database-volume:
+
+
+services:
+
+  ejabberd:
+    build:
+      context: .
+    ports:
+      - 5222:5222
+      - 5269:5269
+      - 5280:5280
+#    hostname: xmpp.invokit.dk
+    environment:
+      - ERLANG_NODE=ejabberd@localhost
+      - XMPP_DOMAIN=localhost
+      - EJABBERD_ADMINS=admin@localhost
+      - EJABBERD_USERS=admin@localhost:admin123
+      - EJABBERD_AUTH_METHOD=external
+      - EJABBERD_EXTAUTH_PROGRAM=/opt/ejabberd/scripts/authenticate-user.py
+      - EJABBERD_EXTAUTH_INSTANCES=3
+      - EJABBERD_EXTAUTH_CACHE=600
+    volumes:
+      - ssl-volume:/opt/ejabberd/ssl
+      - ejabberd-database-volume:/opt/ejabberd/database
+
+#  mariadb:
+#    image: mariadb:10.3
+#    volumes:
+#      - mariadb-volume:/var/lib/mysql
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
