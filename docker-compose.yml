@@ -1,7 +1,9 @@
 version: "3.3"
 
 volumes:
-#  mariadb-volume:
+  mariadb-volume:
+    external:
+      name: ejabberd-mariadb
   ssl-volume:
   ejabberd-database-volume:
 
@@ -25,13 +27,20 @@ services:
       - EJABBERD_EXTAUTH_PROGRAM=/opt/ejabberd/scripts/authenticate-user.py
       - EJABBERD_EXTAUTH_INSTANCES=3
       - EJABBERD_EXTAUTH_CACHE=600
+      - EJABBERD_ODBC_TYPE=mysql
+      - EJABBERD_ODBC_SERVER=mariadb
+      - EJABBERD_ODBC_DATABASE=ejabberd
+      - EJABBERD_ODBC_USERNAME=root
+      - EJABBERD_ODBC_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
       - ssl-volume:/opt/ejabberd/ssl
       - ejabberd-database-volume:/opt/ejabberd/database
+    depends_on:
+      - mariadb
 
-#  mariadb:
-#    image: mariadb:10.3
-#    volumes:
-#      - mariadb-volume:/var/lib/mysql
-#    environment:
-#      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+  mariadb:
+    image: mariadb:10.3
+    volumes:
+      - mariadb-volume:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
